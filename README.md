@@ -13,8 +13,6 @@ conda install matplotlib
 
 Runing:
 
-navigate to the download direct run
-
 python 1.py
 
 
