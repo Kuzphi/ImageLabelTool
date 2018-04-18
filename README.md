@@ -7,7 +7,7 @@ Running the installation
 
 Install Prerequest
 
-conda install -c conda-forge cv2
+conda install -c conda-forge opencv
 
 conda install matplotlib, PyQt5
 
