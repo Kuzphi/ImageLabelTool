@@ -18,7 +18,7 @@ python 1.py
 
 Usage 
 
-First you need Download the image data from course website. Unzip the file in this folder.Then execute {python 1.py} and input your name initial and student id to open the main window.
+First you need Download the image data from course website. Unzip the file in this folder.Then execute {python 1.py} and input your name initial and student id to open the main window.(Initial and student id should be same as the image folder you just unzipped)
 
 in the main windowsLeft side is the image file list. You could choose the label image, after it is label, the color would become red.
 
