@@ -128,21 +128,22 @@ class Main(QWidget):
 		self.path = data_path
 		self.name = name
 		self.NewPosPath = "./" + name + ".js"
-		self.OriPos = json.load(open(data_path + "annotation.js",'r'))
+		self.OriPos = json.load(open(data_path + "annotation.json",'r'))
 		if os.path.exists(self.NewPosPath):
 			self.NewPos = json.load(open(self.NewPosPath,"r"))
 		else:
 			self.NewPos = {}
 		ImgList = os.listdir(data_path)
+		# print sorted(ImgList)
 		Img = []
 		for idx, ImgName in enumerate(ImgList):
 			if ImgName.endswith(".jpg"):
 				Img.append(ImgName)
 		Img = sorted(Img, cmp = cmp)
-
+		# print Img
 		for idx, ImgName in enumerate(Img):
 				self.FileList.addItem(ImgName)
-				if self.NewPos.has_key(ImgName):
+				if self.NewPos.has_key(ImgName[:-4]):					
 					self.FileList.item(idx).setForeground(QColor(255,0,0))
 
 		self.FileList.itemClicked.connect(self.ItemSelect)
@@ -180,10 +181,11 @@ class Main(QWidget):
 
 	def Collect(self):
 		Name = self.FileList.currentItem().text()[:-4]
+		dy, dx = self.OriPos[Name]["Pos"][0], self.OriPos[Name]["Pos"][2]
 		pos = []
 		for Edit in self.Edits:
 			x, y = Edit.text().split(" , ")
-			pos.append([float(x) / self.ratio[0],float(y) / self.ratio[1]])
+			pos.append([dx + float(x) / self.ratio[0], dy + float(y) / self.ratio[1]])
 		self.NewPos[Name] = {}
 		self.NewPos[Name]["Joint"] = pos
 		self.NewPos[Name]["Pos"] = self.OriPos[Name]["Pos"]
@@ -223,7 +225,7 @@ class Main(QWidget):
 		if self.NewPos.has_key(item.text()[:-4]):
 			thisItem = self.NewPos[item.text()[:-4]]
 		pos = []
-		print thisItem
+		# print thisItem
 		for coor in thisItem["Joint"]:
 			if coor == -1:
 				pos.append([10,10])
