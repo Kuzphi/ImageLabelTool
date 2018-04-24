@@ -142,6 +142,7 @@ class Main(QWidget):
 		Img = sorted(Img, cmp = cmp)
 		# print Img
 		for idx, ImgName in enumerate(Img):
+			if self.OriPos.has_key(ImgName[:-4]):
 				self.FileList.addItem(ImgName)
 				if self.NewPos.has_key(ImgName[:-4]):
 					self.FileList.item(idx).setForeground(QColor(255,0,0))
@@ -218,7 +219,6 @@ class Main(QWidget):
 		# print (pixmap.width(), pixmap.height())
 		self.canvas.setPixmap(pixmap)
 		self.canvas.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
-
 		if not self.OriPos.has_key(item.text()[:-4]):
 			raise EnvironmentError("Can not find %s_%s coordination\n" %(self.name, item.text()))
 
@@ -227,7 +227,7 @@ class Main(QWidget):
 			thisItem = self.NewPos[item.text()[:-4]]
 		pos = []
 		# print thisItem
-		print "=============="
+		# print "=============="
 		for coor in thisItem["Joint"]:
 			if coor == -1:
 				pos.append([10,10])
