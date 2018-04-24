@@ -143,7 +143,7 @@ class Main(QWidget):
 		# print Img
 		for idx, ImgName in enumerate(Img):
 				self.FileList.addItem(ImgName)
-				if self.NewPos.has_key(ImgName[:-4]):					
+				if self.NewPos.has_key(ImgName[:-4]):
 					self.FileList.item(idx).setForeground(QColor(255,0,0))
 
 		self.FileList.itemClicked.connect(self.ItemSelect)
@@ -185,7 +185,8 @@ class Main(QWidget):
 		pos = []
 		for Edit in self.Edits:
 			x, y = Edit.text().split(" , ")
-			pos.append([dx + float(x) / self.ratio[0], dy + float(y) / self.ratio[1]])
+			nx, ny = dx + float(x) / self.ratio[0], dy + float(y) / self.ratio[1]
+			pos.append([nx, ny])
 		self.NewPos[Name] = {}
 		self.NewPos[Name]["Joint"] = pos
 		self.NewPos[Name]["Pos"] = self.OriPos[Name]["Pos"]
@@ -226,16 +227,22 @@ class Main(QWidget):
 			thisItem = self.NewPos[item.text()[:-4]]
 		pos = []
 		# print thisItem
+		print "=============="
 		for coor in thisItem["Joint"]:
 			if coor == -1:
 				pos.append([10,10])
 			else:
-				pos.append([coor[0] - thisItem['Pos'][2], coor[1] - thisItem['Pos'][0]])
+				nx, ny = coor[0] - thisItem['Pos'][2], coor[1] - thisItem['Pos'][0]
+				nx, ny= float(nx) * self.ratio[0], float(ny) * self.ratio[1]
+				if nx <= 5 or nx >= 495 or ny <= 5 or ny >= 495:
+					nx = ny = 10
+				print nx, ny
+				pos.append([int(nx), int(ny)])
 
 		# print len(pos), len(self.Joints)
 
 		for coor, Joint in zip(pos, self.Joints):
-			Joint.move_center(float(coor[0]) * self.ratio[0], float(coor[1]) * self.ratio[1])
+			Joint.move_center(coor[0] , coor[1])
 
 	def CheckBoxStateChange(self):
 		for checkbox in self.CheckBox:
