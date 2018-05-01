@@ -123,6 +123,7 @@ class Main(QWidget):
 	def __init__(self, name, data_path):
 		super(Main, self).__init__()
 		self.NextImg = QPushButton(self)
+		self.AppPre = QPushButton(self)
 		self.FileList = QListWidget(self)
 		self.MousePosEdit  = QLineEdit(self)
 		self.MousePosLabel = QLabel(self)
@@ -155,6 +156,7 @@ class Main(QWidget):
 
 		self.FileList.itemClicked.connect(self.ItemSelect)
 		self.NextImg.clicked.connect(self.SaveNext)
+		self.AppPre.clicked.connect(self.applyPreviousResult)
 		self.Edits  = [QLineEdit() for i in range(21)]
 		self.Labels = [QLabel() for i in range(21)]
 		self.Joints = [Joint([0,0], colors[i], parent = self.canvas, Edit = self.Edits[i], \
@@ -174,10 +176,57 @@ class Main(QWidget):
 
 		self.SetupUI()
 
+	def SetupUI(self):
+		self.resize(1200,500)
+		self.FileList.setGeometry(0,0,200,500)
+		# self.Layout.setContentsMargins(0, 0, 0, 0)
+		self.canvas.setGeometry(200,0,500, 500)
+		self.finger.setGeometry(700, 0, 500, 400)
+		# print self.canvas.width(), self.canvas.height()
+		# self.Layout.addWidget(self.canvas, 0, 0, 21 , 1)
+
+		self.AppPre.setText("Apply Previous Result")
+		self.MousePosLabel.setText("Mouse Position")
+		self.NextImg.setText("Save && Next Image(n)")
+		self.Layout.addWidget(self.MousePosLabel, LineSz, 0)
+		self.Layout.addWidget(self.MousePosEdit , LineSz, 1)
+		self.Layout.addWidget(self.CheckBoxAll, 6, 3)
+		self.CheckBoxAll.stateChanged.connect(self.AllChange)
+		self.CheckBoxAll.setChecked(True)
+		for idx, checkbox in enumerate(self.CheckBox):
+			self.Layout.addWidget(checkbox, 7 + idx, 3)
+			checkbox.setChecked(True)
+			checkbox.stateChanged.connect(self.CheckBoxStateChange)
+
+		self.Layout.addWidget(self.NextImg, 13, 3)
+		self.Layout.addWidget(self.AppPre, 14, 3)
+		for idx, edit in enumerate(self.Edits):
+			self.Layout.addWidget(edit, idx % LineSz, idx // LineSz * 2 + 1)
+
+		self.FileList.setCurrentRow(0)
+		self.ItemSelect(self.FileList.item(0))
+		
 	def keyPressEvent(self, event):		
 		if event.key() == QtCore.Qt.Key_N:
 			self.SaveNext()
 		event.accept()
+
+	def applyPreviousResult(self):
+		PreRow = self.FileList.currentRow() - 1
+		if PreRow < 0:
+			return False
+		PreName = self.FileList.item(PreRow).text()[:-4]
+		if self.NewPos.has_key(PreName):
+			Jposes = self.NewPos[PreName]['Joint']
+			Ipos = self.NewPos[PreName]['Pos']
+			for Jpos, Joint in zip(Jposes, self.Joints):
+				nx, ny = Jpos[0] - Ipos[2], Jpos[1] - Ipos[0]
+				nx, ny= float(nx) * self.ratio[0], float(ny) * self.ratio[1]
+				if nx <= 5 or nx >= 495 or ny <= 5 or ny >= 495:
+					nx = ny = 10
+				# print nx, ny
+				# pos.append([int(nx), int(ny)])
+				Joint.move_center(nx, ny)
 
 	def mouseMoveEvent(self, event):
 		# currPos = self.mapToGlobal(self.pos())
@@ -262,34 +311,6 @@ class Main(QWidget):
 			checkbox.setChecked(self.CheckBoxAll.checkState())
 		self.CheckBoxStateChange()
 
-	def SetupUI(self):
-		self.resize(1200,500)
-		self.FileList.setGeometry(0,0,200,500)
-		# self.Layout.setContentsMargins(0, 0, 0, 0)
-		self.canvas.setGeometry(200,0,500, 500)
-		self.finger.setGeometry(700, 0, 500, 400)
-		# print self.canvas.width(), self.canvas.height()
-		# self.Layout.addWidget(self.canvas, 0, 0, 21 , 1)
-
-
-		self.MousePosLabel.setText("Mouse Positon")
-		self.NextImg.setText("Save && Next Image(n)")
-		self.Layout.addWidget(self.MousePosLabel, LineSz, 0)
-		self.Layout.addWidget(self.MousePosEdit , LineSz, 1)
-		self.Layout.addWidget(self.CheckBoxAll, 6, 3)
-		self.CheckBoxAll.stateChanged.connect(self.AllChange)
-		self.CheckBoxAll.setChecked(True)
-		for idx, checkbox in enumerate(self.CheckBox):
-			self.Layout.addWidget(checkbox, 7 + idx, 3)
-			checkbox.setChecked(True)
-			checkbox.stateChanged.connect(self.CheckBoxStateChange)
-
-		self.Layout.addWidget(self.NextImg, 13, 3)
-		for idx, edit in enumerate(self.Edits):
-			self.Layout.addWidget(edit, idx % LineSz, idx // LineSz * 2 + 1)
-
-		self.FileList.setCurrentRow(0)
-		self.ItemSelect(self.FileList.item(0))
 	def closeEvent(self, event):
 		self.Save();
 		event.accept()
