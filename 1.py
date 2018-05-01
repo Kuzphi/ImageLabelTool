@@ -27,7 +27,7 @@ class Joint(QWidget):
 		self.Edit.setText(str(self.x() + self.width())  + " , " + str(self.y() + self.height()))
 		# print (self.pos().x(), self.pos().y(), self.width(), self.height())
 
-	def paintEvent(self, Event):
+	def paintEvent(self, event):
 		painter = QPainter()
 		painter.begin(self)
 		painter.setBrush(QColor(*self.color))
@@ -38,6 +38,7 @@ class Joint(QWidget):
 		painter.setFont(QFont("Arial", 7));
 		painter.drawText(0, self.height() / 2., self.width(), self.height() / 2. , QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter, self.idx)
 		painter.end()
+		event.accept()
 
 	def move(self, pos):
 		super(Joint, self).move(pos)
@@ -54,6 +55,7 @@ class Joint(QWidget):
 			self.__mouseMovePos = event.globalPos()
 
 		super(Joint, self).mousePressEvent(event)
+		event.accept()
 
 	def mouseMoveEvent(self, event):
 		if event.buttons() == QtCore.Qt.LeftButton:
@@ -67,6 +69,7 @@ class Joint(QWidget):
 			self.__mouseMovePos = globalPos
 
 		super(Joint, self).mouseMoveEvent(event)
+		event.accept()
 
 	def mouseReleaseEvent(self, event):
 		if self.__mousePressPos is not None:
@@ -76,6 +79,7 @@ class Joint(QWidget):
 				return
 
 		super(Joint, self).mouseReleaseEvent(event)
+		event.accept()
 
 Name = 	["Wrist"] + \
 		["Thumb 0", "Thumb 1", "Thumb 2","Thumb 3"] + \
@@ -141,11 +145,13 @@ class Main(QWidget):
 				Img.append(ImgName)
 		Img = sorted(Img, cmp = cmp)
 		# print Img
+		count = 0
 		for idx, ImgName in enumerate(Img):
 			if self.OriPos.has_key(ImgName[:-4]):
 				self.FileList.addItem(ImgName)
-				if self.NewPos.has_key(ImgName[:-4]):
-					self.FileList.item(idx).setForeground(QColor(255,0,0))
+				if self.NewPos.has_key(ImgName[:-4]):					
+					self.FileList.item(count).setForeground(QColor(255,0,0))
+				count += 1
 
 		self.FileList.itemClicked.connect(self.ItemSelect)
 		self.NextImg.clicked.connect(self.SaveNext)
@@ -168,7 +174,7 @@ class Main(QWidget):
 
 		self.SetupUI()
 
-	def keyPressEvent(self, event):
+	def keyPressEvent(self, event):		
 		if event.key() == QtCore.Qt.Key_N:
 			self.SaveNext()
 		event.accept()
@@ -257,11 +263,11 @@ class Main(QWidget):
 		self.CheckBoxStateChange()
 
 	def SetupUI(self):
-		self.resize(1100,500)
+		self.resize(1200,500)
 		self.FileList.setGeometry(0,0,200,500)
 		# self.Layout.setContentsMargins(0, 0, 0, 0)
 		self.canvas.setGeometry(200,0,500, 500)
-		self.finger.setGeometry(700, 0, 400, 400)
+		self.finger.setGeometry(700, 0, 500, 400)
 		# print self.canvas.width(), self.canvas.height()
 		# self.Layout.addWidget(self.canvas, 0, 0, 21 , 1)
 
